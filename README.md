@@ -9,7 +9,7 @@
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   :root{
     --bg:#101317;--panel:#161a20;--panel-2:#1c2129;--text:#e6e9ef;--muted:#9aa3b2;
-    --accent:#4da3ff;--good:#4df5a1;--danger:#ff6b6b;--warn:#ffd166;--shadow:rgba(0,0,0,.35);
+    --accent:#ff6b6b;--good:#4df5a1;--danger:#ff6b6b;--warn:#ffd166;--shadow:rgba(0,0,0,.35);
   }
   html,body{min-height:100%;margin:0;overflow-x:hidden;overflow-y:auto}
   body{background:var(--bg);color:var(--text);font:16px/1.5 system-ui,sans-serif;display:flex;flex-direction:column}
@@ -71,7 +71,7 @@
       <canvas id="wheel" width="900" height="900"></canvas>
       <div class="spin-btn-wrap">
         <div class="spin-btn">
-          <button id="spinBtn">SPIN</button>
+          <button id="spinBtn">BNI</button>
         </div>
       </div>
       <div class="winner-display">
