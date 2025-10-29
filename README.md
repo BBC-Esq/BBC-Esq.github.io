@@ -11,18 +11,18 @@
     --bg:#101317;--panel:#161a20;--panel-2:#1c2129;--text:#e6e9ef;--muted:#9aa3b2;
     --accent:#4da3ff;--good:#4df5a1;--danger:#ff6b6b;--warn:#ffd166;--shadow:rgba(0,0,0,.35);
   }
-  html,body{height:100%;margin:0;overflow:hidden}
+  html,body{min-height:100%;margin:0;overflow-x:hidden;overflow-y:auto}
   body{background:var(--bg);color:var(--text);font:16px/1.5 system-ui,sans-serif;display:flex;flex-direction:column}
   
-  header{padding:12px 16px;background:var(--panel);box-shadow:0 2px 8px var(--shadow);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+  header{padding:12px 16px;background:var(--panel);box-shadow:0 2px 8px var(--shadow);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:10}
   header h1{margin:0;font-size:18px;font-weight:700}
-  header button{background:var(--panel-2);color:var(--text);border:none;padding:8px 16px;border-radius:8px;font-size:14px;font-weight:600}
+  header button{background:var(--panel-2);color:var(--text);border:none;padding:8px 16px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}
   
-  .wheel-container{flex:1;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;min-height:0}
+  .wheel-container{flex-shrink:0;display:flex;align-items:center;justify-content:center;position:relative;min-height:400px;padding:20px 0}
   
   .canvas-wrap{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center}
-  canvas{display:block;width:85vmin;height:85vmin;max-width:600px;max-height:600px}
-  #confetti{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
+  canvas{display:block;width:85vmin;height:85vmin;max-width:500px;max-height:500px}
+  #confetti{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:85vmin;height:85vmin;max-width:500px;max-height:500px;pointer-events:none}
   
   .pointer{position:absolute;top:10%;left:50%;transform:translateX(-50%);width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;border-bottom:28px solid var(--danger);filter:drop-shadow(0 3px 6px var(--shadow));z-index:2}
   
@@ -31,38 +31,38 @@
   .spin-btn button{width:90px;height:90px;border-radius:50%;border:none;background:var(--accent);color:white;font-size:20px;font-weight:800;cursor:pointer;touch-action:manipulation}
   .spin-btn button:active{transform:scale(0.95)}
   
-  .winner-display{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);z-index:4;max-width:90%}
-  .winner{display:none;font-size:20px;font-weight:800;padding:12px 24px;border-radius:12px;background:linear-gradient(135deg,var(--good),var(--accent));color:#000;box-shadow:0 8px 24px var(--shadow);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .winner-display{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);z-index:4;max-width:90%;padding:0 10px}
+  .winner{display:none;font-size:18px;font-weight:800;padding:12px 20px;border-radius:12px;background:linear-gradient(135deg,var(--good),var(--accent));color:#000;box-shadow:0 8px 24px var(--shadow);text-align:center;word-wrap:break-word;max-width:100%}
   
-  .controls{background:var(--panel);border-top:2px solid var(--panel-2);padding:16px;flex-shrink:0;max-height:45vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
-  .controls.collapsed{max-height:0;padding:0;overflow:hidden}
+  .controls{background:var(--panel);border-top:2px solid var(--panel-2);padding:16px;flex-shrink:0}
   
-  .toggle-btn{width:100%;background:var(--panel-2);color:var(--text);border:none;padding:12px;font-size:16px;font-weight:600;border-radius:0;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
-  .toggle-btn:active{background:var(--panel)}
+  .section-title{font-size:16px;font-weight:700;margin:0 0 12px 0;color:var(--text)}
   
-  textarea{width:100%;min-height:120px;max-height:200px;resize:vertical;background:var(--panel-2);border:1px solid var(--panel-2);border-radius:10px;color:var(--text);padding:12px;font:inherit;margin-bottom:12px}
+  textarea{width:100%;min-height:140px;max-height:250px;resize:vertical;background:var(--panel-2);border:1px solid var(--panel-2);border-radius:10px;color:var(--text);padding:12px;font:inherit;margin-bottom:12px}
   textarea:focus{outline:none;border-color:var(--accent)}
   
   .btn-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
-  .btn-row.triple{grid-template-columns:1fr 1fr 1fr}
+  .btn-row.triple{grid-template-columns:1fr 1fr}
   .btn{background:var(--panel-2);color:var(--text);border:none;padding:14px;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;touch-action:manipulation}
   .btn:active{opacity:0.8}
   .btn.primary{background:var(--accent);color:white}
   .btn.warn{background:var(--warn);color:#000}
   .btn.danger{background:var(--danger);color:white}
   
-  .options{display:flex;flex-direction:column;gap:10px}
+  .options{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
   .option{display:flex;align-items:center;gap:10px;background:var(--panel-2);padding:12px;border-radius:10px}
-  .option input{width:20px;height:20px;margin:0}
+  .option input{width:20px;height:20px;margin:0;cursor:pointer}
   .option label{flex:1;font-size:15px;cursor:pointer}
   
-  .hint{font-size:13px;color:var(--muted);text-align:center;margin-top:8px}
+  .hint{font-size:13px;color:var(--muted);text-align:center;padding:12px 0}
+  
+  .scroll-hint{text-align:center;padding:16px;background:var(--panel-2);border-radius:10px;margin-bottom:12px;font-size:14px;color:var(--accent);font-weight:600}
 </style>
 </head>
 <body>
   <header>
     <h1>🎡 Spin Wheel</h1>
-    <button id="fullscreenBtn" onclick="toggleFullscreen()">⛶</button>
+    <button id="fullscreenBtn" onclick="toggleFullscreen()">⛶ Full</button>
   </header>
 
   <div class="wheel-container">
@@ -81,18 +81,18 @@
     </div>
   </div>
 
-  <button class="toggle-btn" id="toggleControls" onclick="toggleControls()">
-    <span id="toggleIcon">▼</span> Controls
-  </button>
-
   <div class="controls" id="controls">
+    <div class="scroll-hint">👇 Scroll down for controls 👇</div>
+    
+    <h2 class="section-title">Entries</h2>
     <textarea id="entries" spellcheck="false" placeholder="One entry per line&#10;Optional weights:  Alice|2&#10;Blank lines ignored"></textarea>
     
     <div class="btn-row">
-      <button class="btn primary" onclick="applyEntries()">Apply</button>
-      <button class="btn" onclick="shuffleEntries()">Shuffle</button>
+      <button class="btn primary" onclick="applyEntries()">✓ Apply to Wheel</button>
+      <button class="btn" onclick="shuffleEntries()">🔀 Shuffle</button>
     </div>
     
+    <h2 class="section-title">Options</h2>
     <div class="options">
       <div class="option">
         <input type="checkbox" id="removeOnWin">
@@ -108,12 +108,12 @@
       </div>
     </div>
     
-    <div class="btn-row triple" style="margin-top:12px">
-      <button class="btn warn" onclick="clearAll()">Clear All</button>
-      <button class="btn danger" onclick="resetWheel()">Reset</button>
+    <div class="btn-row triple">
+      <button class="btn warn" onclick="clearAll()">🗑️ Clear</button>
+      <button class="btn danger" onclick="resetWheel()">↻ Reset</button>
     </div>
     
-    <div class="hint">Tap SPIN or press Space to spin the wheel</div>
+    <div class="hint">💡 Tap SPIN or press Space to spin • Press ⛶ for fullscreen</div>
   </div>
 
 <script>
@@ -180,7 +180,8 @@ function computeAngles(list=slices){
 function drawWheel(){
   const size = Math.min(canvas.clientWidth, canvas.clientHeight);
   const dpr = window.devicePixelRatio || 1;
-  canvas.width = canvas.height = confettiCanvas.width = confettiCanvas.height = size * dpr;
+  canvas.width = canvas.height = size * dpr;
+  confettiCanvas.width = confettiCanvas.height = size * dpr;
   
   const r = canvas.width/2;
   ctx.clearRect(0,0,canvas.width,canvas.height);
@@ -372,6 +373,7 @@ function applyEntries(){
   slices = list;
   document.getElementById('winnerBanner').style.display = 'none';
   drawWheel();
+  window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
 function shuffleEntries(){
@@ -394,13 +396,6 @@ function resetWheel(){
   applyEntries();
 }
 
-function toggleControls(){
-  const controls = document.getElementById('controls');
-  const icon = document.getElementById('toggleIcon');
-  controls.classList.toggle('collapsed');
-  icon.textContent = controls.classList.contains('collapsed') ? '▲' : '▼';
-}
-
 function toggleFullscreen(){
   if(!document.fullscreenElement){
     document.documentElement.requestFullscreen?.();
@@ -411,7 +406,10 @@ function toggleFullscreen(){
 
 document.getElementById('spinBtn').addEventListener('click', ()=>{
   if(spinning) return;
-  if(slices.length === 0){ alert('Add entries first'); return; }
+  if(slices.length === 0){ 
+    alert('Add entries first! Scroll down to add entries.');
+    return;
+  }
   const result = pickWinner();
   if(!result) return;
   const finalAngle = computeFinalAngle(result.index);
