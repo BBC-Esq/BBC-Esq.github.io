@@ -84,7 +84,7 @@
     <div class="scroll-hint">👇 Scroll down for controls 👇</div>
     
     <h2 class="section-title">Entries</h2>
-    <textarea id="entries" spellcheck="false" placeholder="One entry per line&#10;Optional weights:  Alice|2&#10;Blank lines ignored"></textarea>
+    <textarea id="entries" spellcheck="false" placeholder="One entry per line&#10;Blank lines ignored"></textarea>
     
     <div class="btn-row">
       <button class="btn primary" onclick="applyEntries()">✓ Apply to Wheel</button>
@@ -96,10 +96,6 @@
       <div class="option">
         <input type="checkbox" id="removeOnWin">
         <label for="removeOnWin">Remove winner after spin</label>
-      </div>
-      <div class="option">
-        <input type="checkbox" id="equalWeights">
-        <label for="equalWeights">Ignore weights (equal chance)</label>
       </div>
       <div class="option">
         <input type="checkbox" id="centerLabel" checked>
@@ -153,25 +149,15 @@ function secureRandomInt(n){
 function parseEntries(text){
   const lines = text.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
   return lines.map((line,i)=>{
-    let weight = 1, name = line;
-    const m = line.match(/^(.+)\|([0-9.]+)$/);
-    if(m){ name = m[1].trim(); weight = Math.max(0.0001, parseFloat(m[2])); }
-    return { id:crypto.randomUUID(), text:name, weight, color:colors[i % colors.length] };
+    return { id:crypto.randomUUID(), text:line, color:colors[i % colors.length] };
   });
 }
 
-function totalWeight(list=slices){
-  return list.reduce((a,b)=>a+b.weight,0);
-}
-
 function computeAngles(list=slices){
-  const tot = totalWeight(list);
-  let acc = 0;
-  return list.map(s=>{
-    const frac = s.weight/tot;
-    const start = acc*TAU;
-    const end = (acc+frac)*TAU;
-    acc += frac;
+  const count = list.length;
+  return list.map((s,i)=>{
+    const start = (i/count)*TAU;
+    const end = ((i+1)/count)*TAU;
     return {...s, start, end};
   });
 }
@@ -202,7 +188,7 @@ function drawWheel(){
     ctx.rotate(mid);
     ctx.translate(r*0.65,0);
     ctx.fillStyle = 'rgba(0,0,0,0.8)';
-    ctx.font = `bold ${Math.max(20,r*0.06)}px system-ui`;
+    ctx.font = `bold ${Math.max(24,r*0.08)}px system-ui`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     const maxW = r*0.5;
@@ -224,18 +210,8 @@ function drawWheel(){
 
 function pickWinner(){
   if(slices.length===0) return null;
-  const useEqual = document.getElementById('equalWeights').checked;
-  if(useEqual){
-    const idx = secureRandomInt(slices.length);
-    return {winner:slices[idx], index:idx};
-  }
-  const tot = totalWeight();
-  let x = secureRandom() * tot;
-  for(let i=0; i<slices.length; i++){
-    x -= slices[i].weight;
-    if(x <= 0) return {winner:slices[i], index:i};
-  }
-  return {winner:slices[slices.length-1], index:slices.length-1};
+  const idx = secureRandomInt(slices.length);
+  return {winner:slices[idx], index:idx};
 }
 
 let audioCtx;
