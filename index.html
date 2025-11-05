@@ -23,11 +23,11 @@
   canvas{display:block;width:85vmin;height:85vmin;max-width:500px;max-height:500px}
   #confetti{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:85vmin;height:85vmin;max-width:500px;max-height:500px;pointer-events:none}
   
-  .pointer{position:absolute;top:10%;left:50%;transform:translateX(-50%);width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;border-bottom:28px solid var(--danger);filter:drop-shadow(0 3px 6px var(--shadow));z-index:2}
+  .pointer{position:absolute;top:10%;left:50%;transform:translateX(-50%);width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;border-top:28px solid var(--danger);filter:drop-shadow(0 3px 6px var(--shadow));z-index:2}
   
   .spin-btn-wrap{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:3}
   .spin-btn{width:120px;height:120px;border-radius:50%;background:var(--panel);border:6px solid var(--panel-2);box-shadow:0 8px 24px var(--shadow);display:flex;align-items:center;justify-content:center}
-  .spin-btn button{width:90px;height:90px;border-radius:50%;border:none;background:var(--accent);color:white;font-size:20px;font-weight:800;cursor:pointer;touch-action:manipulation}
+  .spin-btn button{width:90px;height:90px;border-radius:50%;border:none;background:var(--accent);color:white;font-size:28px;font-weight:800;cursor:pointer;touch-action:manipulation}
   .spin-btn button:active{transform:scale(0.95)}
   
   .winner-display{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);z-index:4;max-width:90%;padding:0 10px}
@@ -201,12 +201,11 @@ function drawWheel(){
     ctx.save();
     ctx.rotate(mid);
     ctx.translate(r*0.65,0);
-    ctx.rotate(Math.PI/2);
     ctx.fillStyle = 'rgba(0,0,0,0.8)';
-    ctx.font = `bold ${Math.max(16,r*0.04)}px system-ui`;
+    ctx.font = `bold ${Math.max(20,r*0.06)}px system-ui`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    const maxW = r*0.55;
+    const maxW = r*0.5;
     let text = g.text;
     while(ctx.measureText(text).width > maxW && text.length > 1){
       text = text.slice(0,-1);
