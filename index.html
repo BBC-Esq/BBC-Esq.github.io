@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
@@ -50,8 +51,15 @@
   
   .options{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
   .option{display:flex;align-items:center;gap:10px;background:var(--panel-2);padding:12px;border-radius:10px}
-  .option input{width:20px;height:20px;margin:0;cursor:pointer}
+  .option input[type="checkbox"]{width:20px;height:20px;margin:0;cursor:pointer}
   .option label{flex:1;font-size:15px;cursor:pointer}
+  
+  .slider-option{display:flex;flex-direction:column;gap:8px;background:var(--panel-2);padding:12px;border-radius:10px}
+  .slider-option label{font-size:15px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+  .slider-option input[type="range"]{width:100%;height:6px;border-radius:3px;background:var(--bg);outline:none;-webkit-appearance:none;appearance:none}
+  .slider-option input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:20px;height:20px;border-radius:50%;background:var(--accent);cursor:pointer}
+  .slider-option input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--accent);cursor:pointer;border:none}
+  .slider-value{color:var(--accent);font-weight:700;font-size:16px}
   
   .hint{font-size:13px;color:var(--muted);text-align:center;padding:12px 0}
   
@@ -101,6 +109,18 @@
         <input type="checkbox" id="centerLabel" checked>
         <label for="centerLabel">Show winner banner</label>
       </div>
+      <div class="option">
+        <input type="checkbox" id="enableSounds" checked>
+        <label for="enableSounds">Enable celebration sounds</label>
+      </div>
+    </div>
+    
+    <div class="slider-option">
+      <label>
+        <span>💥 Number of Explosions</span>
+        <span class="slider-value" id="explosionsValue">25</span>
+      </label>
+      <input type="range" id="explosionsSlider" min="1" max="50" value="25">
     </div>
     
     <div class="btn-row triple">
@@ -131,6 +151,12 @@ const colors = [
   'hsl(120,65%,45%)', 'hsl(150,65%,45%)', 'hsl(180,70%,50%)', 'hsl(210,75%,55%)',
   'hsl(240,70%,60%)', 'hsl(270,65%,60%)', 'hsl(300,70%,55%)', 'hsl(330,75%,55%)'
 ];
+
+const explosionsSlider = document.getElementById('explosionsSlider');
+const explosionsValue = document.getElementById('explosionsValue');
+explosionsSlider.addEventListener('input', (e) => {
+  explosionsValue.textContent = e.target.value;
+});
 
 function secureRandom(){
   const arr = new Uint32Array(1);
@@ -216,16 +242,287 @@ function pickWinner(){
 }
 
 let audioCtx;
-function tick(){
+function getAudioContext(){
   if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
-  const o = audioCtx.createOscillator();
-  const g = audioCtx.createGain();
+  return audioCtx;
+}
+
+function tick(){
+  const ctx = getAudioContext();
+  const o = ctx.createOscillator();
+  const g = ctx.createGain();
   o.frequency.value = 1400;
   g.gain.value = 0.05;
   o.connect(g);
-  g.connect(audioCtx.destination);
+  g.connect(ctx.destination);
   o.start();
-  o.stop(audioCtx.currentTime + 0.02);
+  o.stop(ctx.currentTime + 0.02);
+}
+
+function playFireworkSound(){
+  const ctx = getAudioContext();
+  const now = ctx.currentTime;
+  
+  const osc1 = ctx.createOscillator();
+  const gain1 = ctx.createGain();
+  osc1.type = 'sawtooth';
+  osc1.frequency.setValueAtTime(100, now);
+  osc1.frequency.exponentialRampToValueAtTime(800, now + 0.3);
+  gain1.gain.setValueAtTime(0.1, now);
+  gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+  osc1.connect(gain1);
+  gain1.connect(ctx.destination);
+  osc1.start(now);
+  osc1.stop(now + 0.3);
+  
+  setTimeout(() => {
+    const noise = ctx.createBufferSource();
+    const buffer = ctx.createBuffer(1, ctx.sampleRate * 0.5, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for(let i = 0; i < data.length; i++){
+      data[i] = Math.random() * 2 - 1;
+    }
+    noise.buffer = buffer;
+    
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.value = 2000;
+    
+    const gain2 = ctx.createGain();
+    gain2.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+    
+    noise.connect(filter);
+    filter.connect(gain2);
+    gain2.connect(ctx.destination);
+    noise.start();
+    noise.stop(ctx.currentTime + 0.5);
+  }, 300);
+}
+
+function playCheerSound(){
+  const ctx = getAudioContext();
+  const now = ctx.currentTime;
+  
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(400, now);
+  osc.frequency.exponentialRampToValueAtTime(800, now + 0.4);
+  gain.gain.setValueAtTime(0.15, now);
+  gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(now);
+  osc.stop(now + 0.4);
+}
+
+function playClappingSound(){
+  const ctx = getAudioContext();
+  
+  for(let i = 0; i < 6; i++){
+    setTimeout(() => {
+      const noise = ctx.createBufferSource();
+      const buffer = ctx.createBuffer(1, ctx.sampleRate * 0.05, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for(let j = 0; j < data.length; j++){
+        data[j] = Math.random() * 2 - 1;
+      }
+      noise.buffer = buffer;
+      
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'highpass';
+      filter.frequency.value = 1000;
+      
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.2, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.05);
+      
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+      noise.start();
+      noise.stop(ctx.currentTime + 0.05);
+    }, i * 120);
+  }
+}
+
+function playHornSound(){
+  const ctx = getAudioContext();
+  const now = ctx.currentTime;
+  
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'sawtooth';
+  osc.frequency.setValueAtTime(200, now);
+  osc.frequency.exponentialRampToValueAtTime(400, now + 0.5);
+  gain.gain.setValueAtTime(0.2, now);
+  gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+  
+  const filter = ctx.createBiquadFilter();
+  filter.type = 'lowpass';
+  filter.frequency.value = 1500;
+  
+  osc.connect(filter);
+  filter.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(now);
+  osc.stop(now + 0.5);
+}
+
+function playWhistleSound(){
+  const ctx = getAudioContext();
+  const now = ctx.currentTime;
+  
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(2000, now);
+  osc.frequency.setValueAtTime(2500, now + 0.1);
+  osc.frequency.setValueAtTime(2000, now + 0.2);
+  gain.gain.setValueAtTime(0.15, now);
+  gain.gain.setValueAtTime(0.15, now + 0.2);
+  gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(now);
+  osc.stop(now + 0.3);
+}
+
+function playDrumRollSound(){
+  const ctx = getAudioContext();
+  
+  for(let i = 0; i < 12; i++){
+    setTimeout(() => {
+      const noise = ctx.createBufferSource();
+      const buffer = ctx.createBuffer(1, ctx.sampleRate * 0.03, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for(let j = 0; j < data.length; j++){
+        data[j] = Math.random() * 2 - 1;
+      }
+      noise.buffer = buffer;
+      
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 400;
+      
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.25, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.03);
+      
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+      noise.start();
+      noise.stop(ctx.currentTime + 0.03);
+    }, i * 40);
+  }
+}
+
+function playBellSound(){
+  const ctx = getAudioContext();
+  const now = ctx.currentTime;
+  
+  const freqs = [800, 1000, 1200, 1600];
+  freqs.forEach((freq, i) => {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0.08 / (i + 1), now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 1.2);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 1.2);
+  });
+}
+
+function playTrumpetSound(){
+  const ctx = getAudioContext();
+  const now = ctx.currentTime;
+  
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'sawtooth';
+  osc.frequency.setValueAtTime(300, now);
+  osc.frequency.setValueAtTime(400, now + 0.1);
+  osc.frequency.setValueAtTime(500, now + 0.2);
+  gain.gain.setValueAtTime(0.2, now);
+  gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+  
+  const filter = ctx.createBiquadFilter();
+  filter.type = 'bandpass';
+  filter.frequency.value = 1000;
+  filter.Q.value = 5;
+  
+  osc.connect(filter);
+  filter.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(now);
+  osc.stop(now + 0.4);
+}
+
+function playCymbalSound(){
+  const ctx = getAudioContext();
+  
+  const noise = ctx.createBufferSource();
+  const buffer = ctx.createBuffer(1, ctx.sampleRate * 1.5, ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for(let i = 0; i < data.length; i++){
+    data[i] = Math.random() * 2 - 1;
+  }
+  noise.buffer = buffer;
+  
+  const filter = ctx.createBiquadFilter();
+  filter.type = 'highpass';
+  filter.frequency.value = 3000;
+  
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.25, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 1.5);
+  
+  noise.connect(filter);
+  filter.connect(gain);
+  gain.connect(ctx.destination);
+  noise.start();
+  noise.stop(ctx.currentTime + 1.5);
+}
+
+function playPopSound(){
+  const ctx = getAudioContext();
+  const now = ctx.currentTime;
+  
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(150, now);
+  osc.frequency.exponentialRampToValueAtTime(50, now + 0.1);
+  gain.gain.setValueAtTime(0.3, now);
+  gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(now);
+  osc.stop(now + 0.1);
+}
+
+const celebrationSounds = [
+  playFireworkSound,
+  playCheerSound,
+  playClappingSound,
+  playHornSound,
+  playWhistleSound,
+  playDrumRollSound,
+  playBellSound,
+  playTrumpetSound,
+  playCymbalSound,
+  playPopSound
+];
+
+function playRandomCelebrationSound(){
+  if(!document.getElementById('enableSounds').checked) return;
+  const sound = celebrationSounds[secureRandomInt(celebrationSounds.length)];
+  sound();
 }
 
 let lastSliceIdx = null;
@@ -275,9 +572,8 @@ function animateSpin(finalAngle){
 
 function burstConfetti(){
   const W = confettiCanvas.width, H = confettiCanvas.height;
-  confettiBits = [];
   
-  for(let i=0; i<300; i++){
+  for(let i=0; i<500; i++){
     const angle = Math.random() * TAU;
     const speed = 6 + Math.random() * 10;
     confettiBits.push({
@@ -293,6 +589,10 @@ function burstConfetti(){
       h: 8+Math.random()*12
     });
   }
+}
+
+function animateConfetti(){
+  const W = confettiCanvas.width, H = confettiCanvas.height;
   
   function frame(){
     cctx.clearRect(0,0,W,H);
@@ -319,6 +619,19 @@ function burstConfetti(){
   requestAnimationFrame(frame);
 }
 
+function triggerMultipleExplosions(){
+  const numExplosions = parseInt(explosionsSlider.value);
+  confettiBits = [];
+  
+  for(let i = 0; i < numExplosions; i++){
+    setTimeout(() => {
+      burstConfetti();
+      playRandomCelebrationSound();
+      if(i === 0) animateConfetti();
+    }, i * 200);
+  }
+}
+
 function showWinner(winner, index){
   const banner = document.getElementById('winnerBanner');
   banner.textContent = `Winner: ${winner.text}`;
@@ -326,7 +639,7 @@ function showWinner(winner, index){
     banner.style.display = 'block';
   }
   
-  burstConfetti();
+  triggerMultipleExplosions();
   
   if(document.getElementById('removeOnWin').checked){
     slices.splice(index, 1);
@@ -337,7 +650,6 @@ function showWinner(winner, index){
 function computeFinalAngle(winnerIdx){
   const geom = computeAngles();
   const s = geom[winnerIdx];
-  const mid = (s.start + s.end) / 2;
   const localAngle = s.start + secureRandom() * (s.end - s.start);
   return ((-Math.PI/2 - localAngle) % TAU + TAU) % TAU;
 }
