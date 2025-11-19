@@ -34,7 +34,13 @@
   .winner-display{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);z-index:4;max-width:90%;padding:0 10px}
   .winner{display:none;font-size:18px;font-weight:800;padding:12px 20px;border-radius:12px;background:linear-gradient(135deg,var(--good),var(--accent));color:#000;box-shadow:0 8px 24px var(--shadow);text-align:center;word-wrap:break-word;max-width:100%}
   
-  .controls{background:var(--panel);border-top:2px solid var(--panel-2);padding:16px;flex-shrink:0}
+  .controls{background:var(--panel);flex-shrink:0}
+  .controls-header{background:var(--panel-2);padding:16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-weight:700;font-size:16px;user-select:none;border-top:2px solid var(--panel-2)}
+  .controls-header:hover{background:var(--panel)}
+  .controls-content{padding:16px;background:var(--panel)}
+  .controls.collapsed .controls-content{display:none}
+  .controls.collapsed .toggle-icon{transform:rotate(-90deg)}
+  .toggle-icon{transition:transform 0.3s ease;display:inline-block}
   
   .section-title{font-size:16px;font-weight:700;margin:0 0 12px 0;color:var(--text)}
   
@@ -89,47 +95,53 @@
   </div>
 
   <div class="controls" id="controls">
-    <div class="scroll-hint">👇 Scroll down for controls 👇</div>
-    
-    <h2 class="section-title">Entries</h2>
-    <textarea id="entries" spellcheck="false" placeholder="One entry per line&#10;Blank lines ignored"></textarea>
-    
-    <div class="btn-row">
-      <button class="btn primary" onclick="applyEntries()">✓ Apply to Wheel</button>
-      <button class="btn" onclick="shuffleEntries()">🔀 Shuffle</button>
+    <div class="controls-header" onclick="toggleControls()">
+      <span>⚙️ Settings & Controls</span>
+      <span class="toggle-icon">▼</span>
     </div>
-    
-    <h2 class="section-title">Options</h2>
-    <div class="options">
-      <div class="option">
-        <input type="checkbox" id="removeOnWin">
-        <label for="removeOnWin">Remove winner after spin</label>
+    <div class="controls-content">
+      <div class="scroll-hint">👇 Scroll for more options 👇</div>
+      
+      <h2 class="section-title">Entries</h2>
+      <textarea id="entries" spellcheck="false" placeholder="One entry per line&#10;Blank lines ignored"></textarea>
+      
+      <div class="btn-row">
+        <button class="btn primary" onclick="applyEntries()">✓ Apply to Wheel</button>
+        <button class="btn" onclick="shuffleEntries()">🔀 Shuffle</button>
       </div>
-      <div class="option">
-        <input type="checkbox" id="centerLabel" checked>
-        <label for="centerLabel">Show winner banner</label>
+      
+      <h2 class="section-title">Options</h2>
+      <div class="options">
+        <div class="option">
+          <input type="checkbox" id="removeOnWin">
+          <label for="removeOnWin">Remove winner after spin</label>
+        </div>
+        <div class="option">
+          <input type="checkbox" id="centerLabel" checked>
+          <label for="centerLabel">Show winner banner</label>
+        </div>
+        <div class="option">
+          <input type="checkbox" id="enableSounds" checked>
+          <label for="enableSounds">Enable celebration sounds</label>
+        </div>
       </div>
-      <div class="option">
-        <input type="checkbox" id="enableSounds" checked>
-        <label for="enableSounds">Enable celebration sounds</label>
+      
+      <div class="slider-option">
+        <label>
+          <span>💥 Number of Explosions</span>
+          <span class="slider-value" id="explosionsValue">25</span>
+        </label>
+        <input type="range" id="explosionsSlider" min="1" max="50" value="25">
       </div>
+      
+      <div class="btn-row triple">
+        <button class="btn warn" onclick="clearAll()">🗑️ Clear</button>
+        <button class="btn danger" onclick="resetWheel()">↻ Reset</button>
+      </div>
+      
+      <div class="hint">💡 Tap SPIN or press Space to spin • Press ⛶ for fullscreen</div>
+      <div class="hint">Created by Blair Chintella of Hastings Shadmehry Family Law</div>
     </div>
-    
-    <div class="slider-option">
-      <label>
-        <span>💥 Number of Explosions</span>
-        <span class="slider-value" id="explosionsValue">25</span>
-      </label>
-      <input type="range" id="explosionsSlider" min="1" max="50" value="25">
-    </div>
-    
-    <div class="btn-row triple">
-      <button class="btn warn" onclick="clearAll()">🗑️ Clear</button>
-      <button class="btn danger" onclick="resetWheel()">↻ Reset</button>
-    </div>
-    
-    <div class="hint">💡 Tap SPIN or press Space to spin • Press ⛶ for fullscreen</div>
-   <div class="hint">Created by Blair Chintella of Hastings Shadmehry Family Law</div>
   </div>
 
 <script>
@@ -689,6 +701,10 @@ function toggleFullscreen(){
   } else {
     document.exitFullscreen?.();
   }
+}
+
+function toggleControls(){
+  document.getElementById('controls').classList.toggle('collapsed');
 }
 
 document.getElementById('spinBtn').addEventListener('click', ()=>{
